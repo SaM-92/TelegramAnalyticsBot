@@ -184,6 +184,23 @@ def is_not_command(update):
     return result
 
 
+def help_command(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        "Use /start to begin the process. Send a time series data file for analysis in CSV format. "
+        "The bot will process the data, interpolating missing values, and resample it to an hourly resolution."
+        "You can then download the processed data file."
+    )
+
+
+def about_command(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text(
+        "This is a demo bot for time series data analysis. It processes uploaded data, "
+        "takes care of missing values by linear interpolation, and changes the sample "
+        "to an hourly resolution. It's primarily oriented around ENTSO-E dataset analysis. "
+        "After processing, you can download a CSV file with 1-hour resolution data and receive a brief data analysis."
+    )
+
+
 def main() -> None:
     """
     Entry point of the program.
@@ -212,6 +229,8 @@ def main() -> None:
     )
 
     application.add_handler(conv_handler)
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("about", about_command))
 
     application.run_polling()
 
