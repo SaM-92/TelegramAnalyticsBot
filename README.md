@@ -4,6 +4,8 @@
 
 This Telegram bot is designed to automate the processing and analysis of time series data. It manages missing values, resamples data to an hourly resolution, and provides basic statistical analysis. The bot is especially beneficial for users engaged with time series datasets, particularly the ENTSO-E dataset.
 
+![overview](./images/overview.jpg)
+
 ## About ENTSO-E
 
 In previous work [energy-data-entsoe](https://github.com/SaM-92/energy-data-entsoe/tree/main), the ENTSO-E Data Analysis Tool was developed as an interactive web application to simplify the analysis of [European Network of Transmission System Operators for Electricity (ENTSO-E)](https://transparency.entsoe.eu/) power system data. This tool was created to assist in efficiently handling, visualising, and analysing electricity market and grid data across Europe.
