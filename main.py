@@ -168,7 +168,9 @@ async def doc_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hi 😃! Please upload a CSV file")
+    await update.message.reply_text(
+        "Welcome!!😃 Please upload a CSV file," "and be sure it has time column!"
+    )
 
 
 # Define a custom filter function to check for documents
@@ -184,17 +186,17 @@ def is_not_command(update):
     return result
 
 
-def help_command(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(
-        "Use /start to begin the process. Send a time series data file for analysis in CSV format. "
+async def help_command(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text(
+        "👋 Use /start to begin the process. Send a time series data file for analysis in CSV format. "
         "The bot will process the data, interpolating missing values, and resample it to an hourly resolution."
         "You can then download the processed data file."
     )
 
 
-def about_command(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(
-        "This is a demo bot for time series data analysis. It processes uploaded data, "
+async def about_command(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text(
+        " 🤖 This is a demo bot for time series data analysis. It processes uploaded data, "
         "takes care of missing values by linear interpolation, and changes the sample "
         "to an hourly resolution. It's primarily oriented around ENTSO-E dataset analysis. "
         "After processing, you can download a CSV file with 1-hour resolution data and receive a brief data analysis."
