@@ -24,9 +24,10 @@ Building on this, a Telegram bot demo version has been crafted to explore a diff
 
 1. Clone the repository:
 
-git clone https://github.com/your-username/TimeSeriesDataAnalysisTelegramBot.git
+``` git clone https://github.com/your-username/TimeSeriesDataAnalysisTelegramBot.git ```
 
 2. Install the required dependencies:
+``` pip install -r requirements.txt ```
 
 
 ## Usage
@@ -48,7 +49,7 @@ Before using the Telegram bot, make sure you have completed the installation ste
      ```
      python main.py
      ```
-     
+
 ### Interacting with the Bot on Telegram
 
 - Start the bot using the `/start` command.
