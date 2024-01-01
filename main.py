@@ -188,7 +188,7 @@ def is_not_command(update):
 
 async def help_command(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(
-        "👋 Use /start to begin the process. Send a time series data file for analysis in CSV format. "
+        "Use /start to begin the process. Send a time series data file for analysis in CSV format. "
         "The bot will process the data, interpolating missing values, and resample it to an hourly resolution."
         "You can then download the processed data file."
     )
