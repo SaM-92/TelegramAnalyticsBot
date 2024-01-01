@@ -89,20 +89,21 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
             first_invalid_row_time,
         ) = process_data_for_analysis(df, selected_time_column)
 
-        # await update.message.reply_text(
-        #     " Now it's the time for preprocessing of your data 💻"
-        # )
+        # I hard coded the selected_option_missing_values, but it can be a user input
         selected_option_missing_values = "Interpolate"
+        # Deal with missing values
         df_read = process_uploaded_file(df_read, selected_option_missing_values)
 
-        await update.message.reply_text(" Now it's the time for resampling data  ⏰")
+        # await update.message.reply_text(" Now it's the time for resampling data  ⏰")
 
+        # Set the time resolution, again hard coded, but it can be a user input
         time_resolution_number = 1
         time_resolution_unit = "hours"
 
         #  Apply the function to your DataFrame
         df_read = convert_time(df_read, selected_time_column)
 
+        # Apply the function to the dataframe to resample it
         df_read = process_time_resolution_and_duplicates(
             df_read,
             selected_time_column,
@@ -112,8 +113,8 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
             first_invalid_row_time,
         )
 
-        head_string = df_read.head().to_string()
-        await update.message.reply_text(f"Head of the DataFrame:\n\n{head_string}")
+        # head_string = df_read.head().to_string()
+        # await update.message.reply_text(f"Head of the DataFrame:\n\n{head_string}")
 
         # Send back the processed csv file to the user
         if df_read is not None:
@@ -130,6 +131,7 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
                 await context.bot.send_document(
                     chat_id=update.effective_chat.id, document=file
                 )
+            await update.message.reply_text("Please Download the processed data 📥")
 
     # End the conversation
     next_state = user_data.get("next_state", ConversationHandler.END)
@@ -175,7 +177,7 @@ async def doc_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(
                 "Please select the time column:", reply_markup=reply_markup
             )
-            await update.message.reply_text("Now, let's call select_column.")
+            # await update.message.reply_text("Now, let's call select_column.")
 
             # Set the conversation state to SELECT_COLUMN
             context.user_data["next_state"] = SELECT_COLUMN
