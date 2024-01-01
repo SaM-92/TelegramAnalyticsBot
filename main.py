@@ -1,0 +1,220 @@
+import logging
+import os
+import pandas as pd
+from telegram import Update, ReplyKeyboardMarkup
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    filters,
+    ContextTypes,
+    ConversationHandler,
+    CallbackContext,
+)
+from subs.data_loader import (
+    process_data_for_analysis,
+    process_uploaded_file,
+    convert_time,
+    process_time_resolution_and_duplicates,
+    display_column_statistics,
+)
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Define conversation states
+SELECT_COLUMN = 0
+TIME_COLUMN_SELECTED = 1
+
+
+async def select_column(update: Update, context: CallbackContext):
+    """
+    Handles the selection of a time column by the user and initiates data processing.
+
+    This function is part of a conversation and is triggered when the user selects a time
+    column from a list of options. It stores the selected time column in the user's data,
+    informs the user about the selection, and proceeds to process the data using the
+    selected time column.
+
+    Args:
+        update (telegram.Update): The incoming update from the user.
+        context (telegram.ext.CallbackContext): The context for the conversation.
+
+    Returns:
+        int: The next state in the conversation flow.
+    """
+    await update.message.reply_text("We are in the select_column function")
+
+    # global selected_time_column
+    user_selected_column = update.message.text
+    context.user_data[
+        "selected_time_column"
+    ] = user_selected_column  # Store the selected time column
+
+    user_data = context.user_data
+    df = user_data.get("data_frame")
+    selected_time_column = user_data.get("selected_time_column")
+
+    # Inform the user that the time column has been selected
+    await update.message.reply_text(f"Time column selected: {selected_time_column}")
+
+    # Process data for further analysis with the selected time column
+    if df is not None and selected_time_column:
+        # Process data for further analysis using the selected time column
+        (
+            df_read,
+            skip_invalid_row,
+            first_invalid_row_time,
+        ) = process_data_for_analysis(df, selected_time_column)
+
+        await update.message.reply_text(
+            " Now it's the time for preprocessing of your data 💻"
+        )
+        selected_option_missing_values = "Interpolate"
+        df_read = process_uploaded_file(df_read, selected_option_missing_values)
+
+        await update.message.reply_text(" Now it's the time for resampling data  ⏰")
+
+        time_resolution_number = 1
+        time_resolution_unit = "hours"
+
+        #  Apply the function to your DataFrame
+        df_read = convert_time(df_read, selected_time_column)
+
+        df_read = process_time_resolution_and_duplicates(
+            df_read,
+            selected_time_column,
+            time_resolution_number,
+            time_resolution_unit,
+            skip_invalid_row,
+            first_invalid_row_time,
+        )
+
+        head_string = df_read.head().to_string()
+        await update.message.reply_text(f"Head of the DataFrame:\n\n{head_string}")
+
+        # Send back the processed csv file to the user
+        if df_read is not None:
+            # Save the processed DataFrame to a CSV file
+            output_file_path = "processed_data.csv"
+            df_read.to_csv(output_file_path, index="True")
+            statistics_text = display_column_statistics(df_read)
+            await update.message.reply_text(statistics_text, parse_mode="MarkdownV2")
+            # Call the display_column_statistics function
+            display_column_statistics(df_read, update)
+
+            # Send the CSV file back to the user
+            with open(output_file_path, "rb") as file:
+                await context.bot.send_document(
+                    chat_id=update.effective_chat.id, document=file
+                )
+
+    # End the conversation
+    next_state = user_data.get("next_state", ConversationHandler.END)
+    return next_state
+
+
+async def doc_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    document = update.message.document
+    if document:
+        # Get file ID
+        file_id = document.file_id
+        logger.info(f"FILE ID:  {file_id}")
+
+        # Get file information
+        new_file = await context.bot.get_file(file_id)
+
+        # Construct file download URL
+        file_url = (
+            f"https://api.telegram.org/file/bot{context.bot.token}/{new_file.file_path}"
+        )
+
+        logger.info(f"Downloading file from: {file_url}")
+
+        global file_url_files  # because it is used in select_column
+
+        if "https://" in file_url:
+            # Extract the relative file path part
+            file_path_part = file_url.split("https://")[2].split("/")[-1]
+            file_url_files = f"https://api.telegram.org/file/bot{context.bot.token}/documents/{file_path_part}"
+
+        # Read the CSV file into a pandas DataFrame
+        try:
+            df = pd.read_csv(file_url_files)
+
+            # Store the DataFrame and column names in user_data
+            context.user_data["data_frame"] = df
+            column_names = df.columns.tolist()
+            context.user_data["column_names"] = column_names
+
+            # Create a custom keyboard with the column names
+            keyboard = [[col] for col in column_names]
+            reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
+
+            # Send the list of column names and instruct the user to select one
+            await update.message.reply_text(
+                "Select the time column:", reply_markup=reply_markup
+            )
+            await update.message.reply_text("Now, let's call select_column.")
+
+            # Set the conversation state to SELECT_COLUMN
+            context.user_data["next_state"] = SELECT_COLUMN
+            return SELECT_COLUMN
+
+        except Exception as e:
+            await update.message.reply_text(f"Error reading file: {e}")
+            return ConversationHandler.END
+
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Hi 😃! Please upload a CSV file")
+
+
+# Define a custom filter function to check for documents
+def is_document(update: Update):
+    return update.message.document is not None
+
+
+# Create a custom filter function to exclude specific commands
+def is_not_command(update):
+    logging.info("is_not_command function called")
+    result = update.message.text not in ("/cancel", "/start")
+    logging.info(f"is_not_command result: {result}")
+    return result
+
+
+def main() -> None:
+    """
+    Entry point of the program.
+    Initialises the application and sets up the handlers.
+
+    This function creates an Application instance, sets up the conversation handlers,
+    and starts the bot to listen for incoming messages and commands.
+    """
+    token = os.environ.get("TELEGRAM_TOKEN")
+    # Create the Application instance
+    application = Application.builder().token(token).build()
+
+    SELECT_COLUMN = 0
+    # Create a ConversationHandler for handling the file upload and column selection
+    conv_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler("start", start),
+            MessageHandler(filters.Document.ALL, doc_handler),
+        ],
+        states={
+            SELECT_COLUMN: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, select_column)
+            ],
+        },
+        fallbacks=[],
+    )
+
+    application.add_handler(conv_handler)
+
+    application.run_polling()
+
+
+if __name__ == "__main__":
+    main()
