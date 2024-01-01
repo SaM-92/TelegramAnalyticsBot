@@ -24,7 +24,7 @@ Building on this, a Telegram bot demo version has been crafted to explore a diff
 
 1. Clone the repository:
 
-``` git clone https://github.com/your-username/TimeSeriesDataAnalysisTelegramBot.git ```
+``` git clone https://github.com/SaM-92/TimeSeriesDataAnalysisTelegramBot.git ```
 
 2. Install the required dependencies:
 ``` pip install -r requirements.txt ```
