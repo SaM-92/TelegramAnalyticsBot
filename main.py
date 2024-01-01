@@ -53,10 +53,16 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
     # Retrieve the text of the message sent by the user. This is assumed to be the column name
     # the user has selected.
     user_selected_column = update.message.text
-    context.user_data[
-        "selected_time_column"
-    ] = user_selected_column  # Store the selected time column
 
+    # Store the selected column name in the context's user_data dictionary.
+    # This is a way to persist user-specific data across different states of the conversation.
+    # The key 'selected_time_column' is used to store and later retrieve the user's choice.
+    context.user_data["selected_time_column"] = user_selected_column
+
+    # Store the selected time column
+    # Retrieve the user_data dictionary from the context.
+    # This dictionary holds data specific to the current user and can be accessed across
+    # different states in the conversation.
     user_data = context.user_data
     df = user_data.get("data_frame")
     selected_time_column = user_data.get("selected_time_column")
