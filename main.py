@@ -132,8 +132,6 @@ async def doc_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logger.info(f"Downloading file from: {file_url}")
 
-        global file_url_files  # because it is used in select_column
-
         if "https://" in file_url:
             # Extract the relative file path part
             file_path_part = file_url.split("https://")[2].split("/")[-1]
