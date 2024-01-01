@@ -189,8 +189,9 @@ async def doc_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_first_name = update.message.from_user.first_name
     await update.message.reply_text(
-        "Welcome!!😃 Please upload a CSV file," "and be sure it has time column!"
+        f" Welcome {user_first_name}!! 😃 Please upload a CSV file, and be sure it has time column!"
     )
 
 
