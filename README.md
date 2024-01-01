@@ -4,6 +4,10 @@
 
 This Telegram bot is designed to automate the processing and analysis of time series data. It manages missing values, resamples data to an hourly resolution, and provides basic statistical analysis. The bot is especially beneficial for users engaged with time series datasets, particularly the ENTSO-E dataset.
 
+
+![Demo](images/TelegramAnalyticsBot.gif)
+
+
 ![overview](./images/overview.jpg)
 
 ## About ENTSO-E
