@@ -34,7 +34,8 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
 
     This function is triggered when the user selects a time column for the uploaded data.
     It performs data preprocessing, including handling missing values and resampling the data
-    to an hourly resolution. The function also sends back the processed data to the user.
+    to an hourly resolution. The function also sends back the processed data to the user along with
+    some basic statistics.
 
     Args:
         update (telegram.Update): The incoming update from the user.
