@@ -44,8 +44,14 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
     Returns:
         int: The next state in the conversation flow.
     """
-    await update.message.reply_text("Thank you! We are now processing your data 🤖")
+    user_first_name = update.message.from_user.first_name
 
+    await update.message.reply_text(
+        f"""Thank you {user_first_name}! 🤖 We are now processing your data 
+        and will send it back to you shortly."""
+    )
+    # Retrieve the text of the message sent by the user. This is assumed to be the column name
+    # the user has selected.
     user_selected_column = update.message.text
     context.user_data[
         "selected_time_column"
@@ -101,7 +107,7 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
             statistics_text = display_column_statistics(df_read)
             await update.message.reply_text(statistics_text, parse_mode="MarkdownV2")
             # Call the display_column_statistics function
-            display_column_statistics(df_read, update)
+            display_column_statistics(df_read)
 
             # Send the CSV file back to the user
             with open(output_file_path, "rb") as file:
@@ -184,8 +190,9 @@ def is_not_command(update):
 
 
 async def help_command(update: Update, context: CallbackContext) -> None:
+    user_first_name = update.message.from_user.first_name
     await update.message.reply_text(
-        "Use /start to begin the process. Send a time series data file for analysis in CSV format. "
+        f"{user_first_name}, you can use /start to begin the process. Send a time series data file for analysis in CSV format. "
         "The bot will process the data, interpolating missing values, and resample it to an hourly resolution."
         "You can then download the processed data file."
     )
