@@ -64,11 +64,21 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
     # This dictionary holds data specific to the current user and can be accessed across
     # different states in the conversation.
     user_data = context.user_data
+
+    # Retrieve the DataFrame stored in user_data. The key 'data_frame' should have been set
+    # in a previous step of the conversation where the user uploaded their data.
+    # If 'data_frame' was not set, df will be None.
     df = user_data.get("data_frame")
+
+    # Retrieve the selected time column name from user_data.
+    # This should be the same as 'user_selected_column', and it's the column name
+    # chosen by the user for further data processing.
     selected_time_column = user_data.get("selected_time_column")
 
     # Inform the user that the time column has been selected
-    await update.message.reply_text(f"Time column selected: {selected_time_column}")
+    await update.message.reply_text(
+        f"I understand that you have selected: {selected_time_column}"
+    )
 
     # Process data for further analysis with the selected time column
     if df is not None and selected_time_column:
@@ -79,9 +89,9 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
             first_invalid_row_time,
         ) = process_data_for_analysis(df, selected_time_column)
 
-        await update.message.reply_text(
-            " Now it's the time for preprocessing of your data 💻"
-        )
+        # await update.message.reply_text(
+        #     " Now it's the time for preprocessing of your data 💻"
+        # )
         selected_option_missing_values = "Interpolate"
         df_read = process_uploaded_file(df_read, selected_option_missing_values)
 
