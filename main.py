@@ -152,7 +152,7 @@ async def doc_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # Send the list of column names and instruct the user to select one
             await update.message.reply_text(
-                "Select the time column:", reply_markup=reply_markup
+                "Please select the time column:", reply_markup=reply_markup
             )
             await update.message.reply_text("Now, let's call select_column.")
 
