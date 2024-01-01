@@ -44,9 +44,8 @@ async def process_and_resample_data(update: Update, context: CallbackContext):
     Returns:
         int: The next state in the conversation flow.
     """
-    await update.message.reply_text("We are in the select_column function")
+    await update.message.reply_text("Thank you! We are now processing your data 🤖")
 
-    # global selected_time_column
     user_selected_column = update.message.text
     context.user_data[
         "selected_time_column"
