@@ -28,14 +28,13 @@ SELECT_COLUMN = 0
 TIME_COLUMN_SELECTED = 1
 
 
-async def select_column(update: Update, context: CallbackContext):
+async def process_and_resample_data(update: Update, context: CallbackContext):
     """
-    Handles the selection of a time column by the user and initiates data processing.
+    Handles the processing and resampling of uploaded time series data.
 
-    This function is part of a conversation and is triggered when the user selects a time
-    column from a list of options. It stores the selected time column in the user's data,
-    informs the user about the selection, and proceeds to process the data using the
-    selected time column.
+    This function is triggered when the user selects a time column for the uploaded data.
+    It performs data preprocessing, including handling missing values and resampling the data
+    to an hourly resolution. The function also sends back the processed data to the user.
 
     Args:
         update (telegram.Update): The incoming update from the user.
@@ -222,7 +221,9 @@ def main() -> None:
         ],
         states={
             SELECT_COLUMN: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, select_column)
+                MessageHandler(
+                    filters.TEXT & ~filters.COMMAND, process_and_resample_data
+                )
             ],
         },
         fallbacks=[],
